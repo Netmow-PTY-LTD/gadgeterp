@@ -1,0 +1,41 @@
+
+body{
+background:#f5f7fb;
+font-family:Inter,Arial;
+}
+.sidebar{
+position:fixed;
+width:260px;
+height:100vh;
+background:#111827;
+color:white;
+padding:25px;
+}
+.sidebar a{
+display:block;
+padding:14px;
+color:#ddd;
+text-decoration:none;
+}
+.sidebar a:hover{background:#374151}
+.content{
+margin-left:280px;
+padding:30px;
+}
+.cardbox,.panel,.modal-box{
+background:white;
+padding:25px;
+border-radius:18px;
+box-shadow:0 10px 30px #0001;
+}
+.cardbox h2{color:#6366f1}
+.modal{
+display:none;
+position:fixed;
+inset:0;
+background:#0008;
+}
+.modal-box{
+width:400px;
+margin:120px auto;
+}
