@@ -1,63 +1,2091 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gadget ERP Pro</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-<link href="style.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GadgetPro - Gadget & Device Management ERP System</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-<div class="sidebar">
-<h3><i class="fa-solid fa-mobile-screen"></i> GadgetERP</h3>
-<a><i class="fa fa-chart-line"></i> Dashboard</a>
-<a><i class="fa fa-building"></i> Branch Management</a>
-<a><i class="fa fa-mobile"></i> Gadget Inventory</a>
-<a><i class="fa fa-recycle"></i> Trade-In</a>
-<a><i class="fa fa-screwdriver-wrench"></i> Repair Center</a>
-<a><i class="fa fa-box"></i> Stock</a>
-<a><i class="fa fa-file-invoice"></i> Purchase</a>
-<a><i class="fa fa-users"></i> Customers</a>
-<a><i class="fa fa-chart-pie"></i> Reports</a>
-</div>
 
-<div class="content">
-<h2>Management Dashboard</h2>
+  <!-- ============================================
+       LOGIN SCREEN
+       ============================================ -->
+  <div id="login-page">
+    <div class="login-container">
+      <div class="login-logo">
+        <div class="logo-icon">📱</div>
+        <h1>GadgetPro ERP</h1>
+        <p>Mobile Device & Repair Management System</p>
+      </div>
 
-<div class="row g-3">
-<div class="col-md-3"><div class="cardbox">Total Devices<h2>1,248</h2></div></div>
-<div class="col-md-3"><div class="cardbox">Today's Sales<h2>RM 28,450</h2></div></div>
-<div class="col-md-3"><div class="cardbox">Profit<h2>RM 8,920</h2></div></div>
-<div class="col-md-3"><div class="cardbox">Repair Queue<h2>48</h2></div></div>
-</div>
+      <div class="login-card">
+        <h2>Sign In to Dashboard</h2>
+        <p>Frontend Demo Authentication (No Backend)</p>
 
-<div class="panel mt-4">
-<h4>Device Inventory</h4>
-<button class="btn btn-primary" onclick="addDevice()">+ Add Device</button>
-<table class="table mt-3">
-<thead><tr><th>Device</th><th>IMEI</th><th>Cost</th><th>Status</th><th>Action</th></tr></thead>
-<tbody id="devices"></tbody>
-</table>
-</div>
+        <div class="demo-creds">
+          <p>🔑 Demo Credentials:</p>
+          <span>Email: <strong>admin@example.com</strong></span>
+          <span>Password: <strong>admin123</strong></span>
+        </div>
 
-<div class="panel mt-4">
-<canvas id="salesChart"></canvas>
-</div>
-</div>
+        <div style="margin-bottom:1rem;">
+          <label class="form-label">Select Demo Role:</label>
+          <div class="role-selector">
+            <button class="role-btn active" onclick="document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');this.dataset.role='Admin';">Admin</button>
+            <button class="role-btn" onclick="document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');this.dataset.role='Manager';">Manager</button>
+            <button class="role-btn" onclick="document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');this.dataset.role='Staff';">Staff</button>
+            <button class="role-btn" onclick="document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');this.dataset.role='Technician';">Technician</button>
+          </div>
+        </div>
 
-<div class="modal" id="modal">
-<div class="modal-box">
-<h3>Add Device</h3>
-<input id="name" class="form-control mb-2" placeholder="Device Name">
-<input id="imei" class="form-control mb-2" placeholder="IMEI">
-<input id="cost" class="form-control mb-2" placeholder="Cost">
-<button class="btn btn-success" onclick="saveDevice()">Save</button>
-</div>
-</div>
+        <form onsubmit="event.preventDefault(); const r = document.querySelector('.role-btn.active')?.textContent || 'Admin'; AppModule.login(document.getElementById('login-email').value, document.getElementById('login-pass').value, r);">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="login-email" class="form-control" value="admin@example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="login-pass" class="form-control" value="admin123" required>
+          </div>
+          <button type="submit" class="login-btn">Log In to System</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
-<script src="database.js"></script>
-<script src="app.js"></script>
+  <!-- ============================================
+       MAIN APPLICATION LAYOUT
+       ============================================ -->
+  <div id="app">
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h2>GadgetPro</h2>
+          <span>ERP & Retail System</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- DASHBOARD -->
+        <div class="nav-section">
+          <div class="nav-section-label">Dashboard</div>
+          <div class="nav-item active" data-view="dashboard">
+            <span class="nav-icon">📊</span> Overview
+          </div>
+        </div>
+
+        <!-- INVENTORY -->
+        <div class="nav-section">
+          <div class="nav-section-label">Inventory</div>
+          <div class="nav-item" data-view="new-gadgets">
+            <span class="nav-icon">📱</span> New Gadgets
+          </div>
+          <div class="nav-item" data-view="used-gadgets">
+            <span class="nav-icon">🔄</span> Used Gadgets
+          </div>
+          <div class="nav-item" data-view="spare-parts">
+            <span class="nav-icon">🧩</span> Spare Parts
+          </div>
+          <div class="nav-item" data-view="stock-aging">
+            <span class="nav-icon">⏳</span> Stock Aging
+          </div>
+          <div class="nav-item" data-view="slow-moving">
+            <span class="nav-icon">🐢</span> Slow Moving Stock
+          </div>
+          <div class="nav-item" data-view="stock-take">
+            <span class="nav-icon">📋</span> Stock Take
+          </div>
+          <div class="nav-item" data-view="stock-adjustment">
+            <span class="nav-icon">⚖️</span> Stock Adjustment
+          </div>
+          <div class="nav-item" data-view="barcode">
+            <span class="nav-icon">🏷️</span> Barcode Management
+          </div>
+        </div>
+
+        <!-- PURCHASING -->
+        <div class="nav-section">
+          <div class="nav-section-label">Purchasing</div>
+          <div class="nav-item" data-view="suppliers">
+            <span class="nav-icon">🏭</span> Suppliers
+          </div>
+          <div class="nav-item" data-view="purchase-orders">
+            <span class="nav-icon">📝</span> Purchase Orders
+          </div>
+          <div class="nav-item" data-view="purchase-invoices">
+            <span class="nav-icon">🧾</span> Purchase Invoices
+          </div>
+          <div class="nav-item" data-view="grn">
+            <span class="nav-icon">📦</span> Goods Received (GRN)
+          </div>
+        </div>
+
+        <!-- SALES -->
+        <div class="nav-section">
+          <div class="nav-section-label">Sales & Customers</div>
+          <div class="nav-item" data-view="sales">
+            <span class="nav-icon">💰</span> Sales Records
+          </div>
+          <div class="nav-item" data-view="customers">
+            <span class="nav-icon">👥</span> Customer Directory
+          </div>
+          <div class="nav-item" data-view="loyalty">
+            <span class="nav-icon">⭐</span> Loyalty / Membership
+          </div>
+        </div>
+
+        <!-- TRADE-IN -->
+        <div class="nav-section">
+          <div class="nav-section-label">Trade-In</div>
+          <div class="nav-item" data-view="trade-in">
+            <span class="nav-icon">🔁</span> Trade-In Records
+          </div>
+          <div class="nav-item" data-view="trade-in-valuation">
+            <span class="nav-icon">🧮</span> Trade-In Valuation
+          </div>
+        </div>
+
+        <!-- SERVICE -->
+        <div class="nav-section">
+          <div class="nav-section-label">Service & Lab</div>
+          <div class="nav-item" data-view="repairs">
+            <span class="nav-icon">🔧</span> Repair Tickets
+          </div>
+          <div class="nav-item" data-view="refurbishment">
+            <span class="nav-icon">✨</span> Refurbishments
+          </div>
+        </div>
+
+        <!-- BRANCHES -->
+        <div class="nav-section">
+          <div class="nav-section-label">Branches</div>
+          <div class="nav-item" data-view="branches">
+            <span class="nav-icon">🏢</span> Branch Management
+          </div>
+          <div class="nav-item" data-view="branch-transfers">
+            <span class="nav-icon">🚚</span> Branch Transfers
+          </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div class="nav-section">
+          <div class="nav-section-label">Analytics</div>
+          <div class="nav-item" data-view="reports">
+            <span class="nav-icon">📈</span> Business Reports
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="nav-section">
+          <div class="nav-section-label">System</div>
+          <div class="nav-item" data-view="settings">
+            <span class="nav-icon">⚙️</span> Settings
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="AppModule.logout()">
+          <div class="user-avatar" id="user-avatar-initials">A</div>
+          <div class="user-info">
+            <div class="name" id="user-display-name">Admin User</div>
+            <div class="role" id="user-display-role">Administrator</div>
+          </div>
+          <span class="logout-btn">🚪</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="sidebar-toggle" id="btn-sidebar-toggle">☰</button>
+          <div class="breadcrumb">
+            <span>GadgetPro</span>
+            <span class="sep">/</span>
+            <span id="breadcrumb-current">Dashboard</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Global Branch Selector -->
+          <div class="branch-selector">
+            <select id="header-branch-select" class="branch-dropdown-select">
+              <option value="">All Branches</option>
+            </select>
+          </div>
+
+          <!-- Notification Dropdown -->
+          <div class="dropdown">
+            <button class="icon-btn" id="btn-notif-toggle">
+              🔔
+              <span class="badge" id="notif-badge">0</span>
+            </button>
+            <div class="dropdown-menu" id="notif-dropdown">
+              <div class="dropdown-header">
+                <div class="dropdown-title">System Notifications</div>
+              </div>
+              <div class="dropdown-items" id="notif-dropdown-items">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Views -->
+      <main class="content-area">
+
+        <!-- ================= VIEW: DASHBOARD ================= -->
+        <section id="view-dashboard" class="view-section">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Management Dashboard</h1>
+              <p class="page-subtitle">Real-time business performance metrics & dynamic calculations</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="SalesModule.openNewSaleModal()">💰 New Sale</button>
+              <button class="btn btn-secondary" onclick="TradeInModule.openNewTradeInModal()">🔁 New Trade-In</button>
+              <button class="btn btn-outline" onclick="RepairModule.openNewRepairModal()">🔧 New Repair Ticket</button>
+            </div>
+          </div>
+
+          <!-- KPI Cards Grid (12 Metrics) -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Stock Value (Cost)</div>
+                <div class="kpi-icon" style="background:#eef2ff;color:#4f46e5;">💵</div>
+              </div>
+              <div class="kpi-value" id="kpi-stock-value">$0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Selling Value</div>
+                <div class="kpi-icon" style="background:#ecfdf5;color:#10b981;">🏷️</div>
+              </div>
+              <div class="kpi-value" id="kpi-selling-value">$0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Today's Sales</div>
+                <div class="kpi-icon" style="background:#fef3c7;color:#f59e0b;">📈</div>
+              </div>
+              <div class="kpi-value" id="kpi-today-sales">$0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">This Month Sales</div>
+                <div class="kpi-icon" style="background:#ede9fe;color:#8b5cf6;">📅</div>
+              </div>
+              <div class="kpi-value" id="kpi-month-sales">$0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Gross Profit</div>
+                <div class="kpi-icon" style="background:#dcfce7;color:#166534;">💎</div>
+              </div>
+              <div class="kpi-value" id="kpi-gross-profit">$0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Pending Repairs</div>
+                <div class="kpi-icon" style="background:#fee2e2;color:#ef4444;">🔧</div>
+              </div>
+              <div class="kpi-value" id="kpi-pending-repairs">0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">In Refurbishment</div>
+                <div class="kpi-icon" style="background:#f0fdf4;color:#059669;">✨</div>
+              </div>
+              <div class="kpi-value" id="kpi-refurb-count">0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Trade-Ins This Month</div>
+                <div class="kpi-icon" style="background:#fffbeb;color:#d97706;">🔄</div>
+              </div>
+              <div class="kpi-value" id="kpi-tradein-month">0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Low Stock Items</div>
+                <div class="kpi-icon" style="background:#fee2e2;color:#dc2626;">⚠️</div>
+              </div>
+              <div class="kpi-value" id="kpi-low-stock">0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Slow Moving Stock</div>
+                <div class="kpi-icon" style="background:#ffedd5;color:#c2410c;">🐢</div>
+              </div>
+              <div class="kpi-value" id="kpi-slow-stock">0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Total Customers</div>
+                <div class="kpi-icon" style="background:#e0f2fe;color:#0284c7;">👥</div>
+              </div>
+              <div class="kpi-value" id="kpi-customers">0</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <div class="kpi-label">Total Branches</div>
+                <div class="kpi-icon" style="background:#f1f5f9;color:#475569;">🏢</div>
+              </div>
+              <div class="kpi-value" id="kpi-branches">0</div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-title">Sales Monthly Trend</div>
+              <div id="dash-chart-sales-trend"></div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-title">Sales Revenue by Branch</div>
+              <div id="dash-chart-branch-sales"></div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-title">Stock Inventory by Brand</div>
+              <div class="donut-chart-wrap">
+                <div id="dash-chart-donut-brand" class="donut-chart"></div>
+                <div id="dash-chart-brand-legend" class="donut-legend"></div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-title">Repair Ticket Status Distribution</div>
+              <div id="dash-chart-repairs"></div>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent System Activities & Live Feed</div></div>
+            <div class="card-body">
+              <div id="dash-recent-activities" class="activity-feed"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: NEW GADGETS ================= -->
+        <section id="view-new-gadgets" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">New Gadget Management</h1>
+              <p class="page-subtitle">Track new brand-name inventory, SKUs, and stock limits</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('newGadgets'), 'new_gadgets')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="InventoryModule.openAddNewGadgetModal()">+ Add New Gadget</button>
+            </div>
+          </div>
+
+          <div class="table-toolbar">
+            <div class="search-input-wrapper">
+              <span class="si">🔍</span>
+              <input type="text" placeholder="Search brand, model, SKU, IMEI..." oninput="InventoryModule.state.newGadgets.search=this.value;InventoryModule.renderNewGadgets();">
+            </div>
+            <select class="filter-select" onchange="InventoryModule.state.newGadgets.brand=this.value;InventoryModule.renderNewGadgets();">
+              <option value="">All Brands</option>
+              <option value="Apple">Apple</option>
+              <option value="Samsung">Samsung</option>
+              <option value="Google">Google</option>
+              <option value="OnePlus">OnePlus</option>
+              <option value="Xiaomi">Xiaomi</option>
+            </select>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product & Variant</th>
+                  <th>SKU</th>
+                  <th>IMEI / Serial</th>
+                  <th>Cost Price</th>
+                  <th>Selling Price</th>
+                  <th>Stock Quantity</th>
+                  <th>Branch</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-new-gadgets-body"></tbody>
+            </table>
+            <div class="pagination">
+              <div class="pagination-info" id="new-gadgets-info">Showing 0-0 of 0</div>
+              <div class="pagination-controls" id="new-gadgets-pagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: USED GADGETS ================= -->
+        <section id="view-used-gadgets" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Used Gadget Management</h1>
+              <p class="page-subtitle">Individual IMEI tracking, physical condition grading, and repair cost accumulation</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('usedGadgets'), 'used_gadgets')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="InventoryModule.openAddUsedGadgetModal()">+ Add Used Device</button>
+            </div>
+          </div>
+
+          <div class="table-toolbar">
+            <div class="search-input-wrapper">
+              <span class="si">🔍</span>
+              <input type="text" placeholder="Search used IMEI, model, seller..." oninput="InventoryModule.state.usedGadgets.search=this.value;InventoryModule.renderUsedGadgets();">
+            </div>
+            <select class="filter-select" onchange="InventoryModule.state.usedGadgets.condition=this.value;InventoryModule.renderUsedGadgets();">
+              <option value="">All Conditions</option>
+              <option value="Excellent">Excellent</option>
+              <option value="Very Good">Very Good</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Poor">Poor</option>
+            </select>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Device Info</th>
+                  <th>IMEI</th>
+                  <th>Condition</th>
+                  <th>Battery</th>
+                  <th>Accumulated Cost</th>
+                  <th>Expected Profit</th>
+                  <th>Branch</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-used-gadgets-body"></tbody>
+            </table>
+            <div class="pagination">
+              <div class="pagination-info" id="used-gadgets-info">Showing 0-0 of 0</div>
+              <div class="pagination-controls" id="used-gadgets-pagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: DEVICE DETAILS PAGE ================= -->
+        <section id="view-device-details" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <button class="btn btn-outline btn-sm mb-2" onclick="AppModule.navigateTo('used-gadgets')">← Back to List</button>
+              <h1 class="page-title">Individual Device Cost Profile & Timeline</h1>
+              <p class="page-subtitle">Granular financial auditing for individual IMEI / Serial number</p>
+            </div>
+          </div>
+
+          <div id="device-profile-content">
+            <!-- Dynamically populated by InventoryModule.viewDeviceDetail -->
+          </div>
+        </section>
+
+        <!-- ================= VIEW: SPARE PARTS ================= -->
+        <section id="view-spare-parts" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Spare Parts Management</h1>
+              <p class="page-subtitle">Screens, batteries, camera modules, and repair materials stock</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('spareParts'), 'spare_parts')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="InventoryModule.openAddSparePartModal()">+ Add Spare Part</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Part Name & Number</th>
+                  <th>Category</th>
+                  <th>Compatible Device</th>
+                  <th>Cost Price</th>
+                  <th>Selling Price</th>
+                  <th>Stock Quantity</th>
+                  <th>Branch</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-spare-parts-body"></tbody>
+            </table>
+            <div class="pagination">
+              <div class="pagination-info" id="spare-parts-info">Showing 0-0 of 0</div>
+              <div class="pagination-controls" id="spare-parts-pagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: STOCK AGING ================= -->
+        <section id="view-stock-aging" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Stock Aging Analysis</h1>
+              <p class="page-subtitle">Identify age brackets (0-30, 31-60, 61-90, 90+ days) to minimize capital lockup</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Device / Product</th>
+                  <th>IMEI / Serial</th>
+                  <th>Branch</th>
+                  <th>Acquisition Date</th>
+                  <th>Days in Stock</th>
+                  <th>Cost Price</th>
+                  <th>Target Price</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="table-stock-aging-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: SLOW MOVING STOCK ================= -->
+        <section id="view-slow-moving" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Slow Moving Stock</h1>
+              <p class="page-subtitle">Identify unsold inventory exceeding configurable aging thresholds</p>
+            </div>
+            <div class="page-actions">
+              <select id="slow-moving-days-filter" class="filter-select" onchange="InventoryModule.renderSlowMovingStock()">
+                <option value="30">30+ Days</option>
+                <option value="60">60+ Days</option>
+                <option value="90" selected>90+ Days</option>
+                <option value="120">120+ Days</option>
+                <option value="180">180+ Days</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>IMEI</th>
+                  <th>Days Unsold</th>
+                  <th>Cost Value</th>
+                  <th>Current Price</th>
+                  <th>Potential Profit</th>
+                  <th>Branch</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-slow-moving-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: STOCK TAKE ================= -->
+        <section id="view-stock-take" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Stock Take Audit & Reconciliation</h1>
+              <p class="page-subtitle">Perform physical count audits and reconcile against system balance</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU / Barcode</th>
+                  <th>Branch</th>
+                  <th>System Qty</th>
+                  <th>Physical Count</th>
+                  <th>Variance</th>
+                  <th>Approve Adjustment</th>
+                </tr>
+              </thead>
+              <tbody id="stock-take-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: STOCK ADJUSTMENT ================= -->
+        <section id="view-stock-adjustment" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Stock Adjustment Logs</h1>
+              <p class="page-subtitle">Audit log of manual inventory adjustments, losses, and damages</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Log ID</th>
+                  <th>Date</th>
+                  <th>Product Name</th>
+                  <th>Branch</th>
+                  <th>Prev Qty</th>
+                  <th>Adjustment</th>
+                  <th>New Qty</th>
+                  <th>Reason</th>
+                  <th>User</th>
+                </tr>
+              </thead>
+              <tbody id="table-stock-adjustments-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: BARCODE MANAGEMENT ================= -->
+        <section id="view-barcode" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Barcode Management & Label Printing</h1>
+              <p class="page-subtitle">Visual barcode rendering for product SKUs and individual IMEIs</p>
+            </div>
+          </div>
+
+          <div id="barcode-grid" class="device-grid"></div>
+        </section>
+
+        <!-- ================= VIEW: SALES ================= -->
+        <section id="view-sales" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Individual Device Sales Records</h1>
+              <p class="page-subtitle">Traceable sales, customer invoices, revenue and profit reporting</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('sales'), 'sales_records')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="SalesModule.openNewSaleModal()">💰 Create New Sale</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Sale Date</th>
+                  <th>Customer</th>
+                  <th>Item Sold</th>
+                  <th>Cost</th>
+                  <th>Final Price</th>
+                  <th>Profit</th>
+                  <th>Payment</th>
+                  <th>Branch</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-sales-body"></tbody>
+            </table>
+            <div class="pagination">
+              <div class="pagination-info" id="sales-info">Showing 0-0 of 0</div>
+              <div class="pagination-controls" id="sales-pagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: CUSTOMERS ================= -->
+        <section id="view-customers" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Customer Directory</h1>
+              <p class="page-subtitle">Manage customer profiles, purchase histories, and membership tiering</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('customers'), 'customers')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="SalesModule.openAddCustomerModal()">+ Add Customer</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Phone Number</th>
+                  <th>Type</th>
+                  <th>Membership Tier</th>
+                  <th>Total Purchases</th>
+                  <th>Total Spent</th>
+                  <th>Loyalty Balance</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-customers-body"></tbody>
+            </table>
+            <div class="pagination">
+              <div class="pagination-info" id="customers-info">Showing 0-0 of 0</div>
+              <div class="pagination-controls" id="customers-pagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: LOYALTY ================= -->
+        <section id="view-loyalty" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Membership & Loyalty Rewards</h1>
+              <p class="page-subtitle">Loyalty point accumulation and redemption ledger</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Type</th>
+                  <th>Points</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="table-loyalty-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: TRADE-IN ================= -->
+        <section id="view-trade-in" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Trade-In & Exchange Records</h1>
+              <p class="page-subtitle">Customer device acquisitions traded in against new device purchases</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('tradeIns'), 'trade_ins')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="TradeInModule.openNewTradeInModal()">🔁 Create Trade-In</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Trade ID</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Device Traded</th>
+                  <th>Condition</th>
+                  <th>Market Value</th>
+                  <th>Final Trade Value</th>
+                  <th>Customer Paid</th>
+                  <th>Branch</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-tradeins-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: TRADE-IN VALUATION CALCULATOR ================= -->
+        <section id="view-trade-in-valuation" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Trade-In Valuation Calculator</h1>
+              <p class="page-subtitle">Dynamic valuation formula based on market price, condition, repair estimate & target margin</p>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Valuation Inputs</div></div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label class="form-label">Estimated Used Market Value ($)</label>
+                  <input type="number" id="val-market-value" class="form-control" value="600" oninput="TradeInModule.calculateValuation()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Physical Condition Grade</label>
+                  <select id="val-condition" class="form-control" onchange="TradeInModule.calculateValuation()">
+                    <option value="Excellent">Excellent (95% value)</option>
+                    <option value="Very Good">Very Good (85% value)</option>
+                    <option value="Good" selected>Good (75% value)</option>
+                    <option value="Fair">Fair (60% value)</option>
+                    <option value="Poor">Poor (40% value)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Estimated Repair / Refurbishment Cost ($)</label>
+                  <input type="number" id="val-repair-est" class="form-control" value="40" oninput="TradeInModule.calculateValuation()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Target Resale Profit Margin (%)</label>
+                  <input type="number" id="val-margin" class="form-control" value="15" oninput="TradeInModule.calculateValuation()">
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title">Valuation Breakdown Result</div></div>
+              <div class="card-body">
+                <div class="valuation-box">
+                  <div class="valuation-calc-row"><span>Base Market Value:</span><span id="val-res-market">$600.00</span></div>
+                  <div class="valuation-calc-row"><span>Condition Adjustment:</span><span id="val-res-cond-adj">-$150.00</span></div>
+                  <div class="valuation-calc-row"><span>Repair Deductions:</span><span id="val-res-repair-ded">-$40.00</span></div>
+                  <div class="valuation-calc-row"><span>Desired Margin:</span><span id="val-res-margin-ded">-$61.50</span></div>
+                  <div class="valuation-calc-row total"><span>SUGGESTED TRADE-IN VALUE:</span><span id="val-res-suggested">$348.50</span></div>
+                </div>
+
+                <div class="form-group mt-3">
+                  <label class="form-label">Manual Staff Override Value ($)</label>
+                  <input type="number" id="val-final-override" class="form-control" placeholder="Override value...">
+                </div>
+
+                <button class="btn btn-primary btn-block mt-3" onclick="TradeInModule.openNewTradeInModal()">Apply to New Trade-In Transaction</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: REPAIRS ================= -->
+        <section id="view-repairs" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Repair Ticket Management</h1>
+              <p class="page-subtitle">Customer device intake, technician assignment, diagnosis, and billing</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('repairs'), 'repair_tickets')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="RepairModule.openNewRepairModal()">🔧 Create Repair Ticket</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ticket #</th>
+                  <th>Received Date</th>
+                  <th>Customer</th>
+                  <th>Device Info</th>
+                  <th>Problem Reported</th>
+                  <th>Technician</th>
+                  <th>Billed Price</th>
+                  <th>Branch</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-repairs-body"></tbody>
+            </table>
+            <div class="pagination">
+              <div class="pagination-info" id="repairs-info">Showing 0-0 of 0</div>
+              <div class="pagination-controls" id="repairs-pagination"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: REFURBISHMENT ================= -->
+        <section id="view-refurbishment" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Refurbishment Lab Workflow</h1>
+              <p class="page-subtitle">Track trade-in device upgrades, parts replacement, and quality control grading</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('refurbishments'), 'refurbishments')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="RefurbishmentModule.openNewRefurbModal()">✨ Start Refurbishment</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Refurb ID</th>
+                  <th>Device</th>
+                  <th>Technician</th>
+                  <th>Start Date</th>
+                  <th>Condition Grade (Before ➔ After)</th>
+                  <th>Total Cost</th>
+                  <th>Branch</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-refurbishments-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: SUPPLIERS ================= -->
+        <section id="view-suppliers" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Supplier Management</h1>
+              <p class="page-subtitle">Wholesale vendors, parts suppliers, and tax/payment terms</p>
+            </div>
+            <div class="page-actions">
+              <button class="export-btn" onclick="exportToCSV(StorageService.get('suppliers'), 'suppliers')">📥 Export CSV</button>
+              <button class="btn btn-primary" onclick="PurchasingModule.openAddSupplierModal()">+ Add Supplier</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company Name</th>
+                  <th>Contact Person</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Tax / VAT ID</th>
+                  <th>Payment Terms</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-suppliers-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: PURCHASE ORDERS ================= -->
+        <section id="view-purchase-orders" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Purchase Orders (PO)</h1>
+              <p class="page-subtitle">Create stock orders for wholesale device distributors</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="PurchasingModule.openNewPOModal()">+ Create Purchase Order</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>PO Number</th>
+                  <th>Order Date</th>
+                  <th>Supplier</th>
+                  <th>Branch</th>
+                  <th>Grand Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-po-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: PURCHASE INVOICES ================= -->
+        <section id="view-purchase-invoices" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Purchase Invoices</h1>
+              <p class="page-subtitle">Track supplier bills, due dates, and payment balances</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice Number</th>
+                  <th>PO Ref</th>
+                  <th>Supplier</th>
+                  <th>Invoice Date</th>
+                  <th>Due Date</th>
+                  <th>Total Amount</th>
+                  <th>Outstanding Due</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-purchase-invoices-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: GRN ================= -->
+        <section id="view-grn" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Goods Received Notes (GRN)</h1>
+              <p class="page-subtitle">Intake inspection records for incoming stock packages</p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>GRN #</th>
+                  <th>PO Ref</th>
+                  <th>Supplier</th>
+                  <th>Received Date</th>
+                  <th>Received By</th>
+                  <th>Ordered Qty</th>
+                  <th>Accepted Qty</th>
+                  <th>Branch</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="table-grn-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: BRANCHES ================= -->
+        <section id="view-branches" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Branch Management</h1>
+              <p class="page-subtitle">Multi-location store management and branch stock tracking</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="BranchesModule.openAddBranchModal()">+ Add New Branch</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Branch Name & Code</th>
+                  <th>Address</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Current Stock</th>
+                  <th>Sales Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-branches-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: BRANCH TRANSFERS ================= -->
+        <section id="view-branch-transfers" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Branch Stock Transfers</h1>
+              <p class="page-subtitle">Inter-branch inventory transfer tracking and approval</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="BranchesModule.openNewTransferModal()">🚚 Initiate Stock Transfer</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Transfer ID</th>
+                  <th>Date</th>
+                  <th>Transfer Route</th>
+                  <th>Requested By</th>
+                  <th>Approved By</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-transfers-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: REPORTS ================= -->
+        <section id="view-reports" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Business & Financial Reports</h1>
+              <p class="page-subtitle">Comprehensive calculated analytics across sales, stock, and services</p>
+            </div>
+          </div>
+
+          <!-- Profit & Loss Summary -->
+          <div class="card mb-4">
+            <div class="card-header"><div class="card-title">💵 Profit & Loss Financial Statement</div></div>
+            <div class="card-body">
+              <div class="report-row mb-3">
+                <div class="report-kpi"><div class="val" id="report-pl-revenue">$0</div><div class="lbl">Total Gross Revenue</div></div>
+                <div class="report-kpi"><div class="val" id="report-pl-cogs">$0</div><div class="lbl">Cost of Goods Sold (COGS)</div></div>
+                <div class="report-kpi"><div class="val" id="report-pl-gross">$0</div><div class="lbl">Gross Profit</div></div>
+              </div>
+              <div class="report-row">
+                <div class="report-kpi"><div class="val" id="report-pl-repair-exp">$0</div><div class="lbl">Repair Expenses</div></div>
+                <div class="report-kpi"><div class="val" id="report-pl-refurb-exp">$0</div><div class="lbl">Refurbishment Expenses</div></div>
+                <div class="report-kpi" style="background:var(--primary-bg);border-color:#c7d2fe;">
+                  <div class="val text-success" id="report-pl-net">$0</div><div class="lbl" style="font-weight:700;color:var(--primary);">NET PROFIT</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Report Metrics Grid -->
+          <div class="two-col mb-4">
+            <div class="card">
+              <div class="card-header"><div class="card-title">📦 Stock & Parts Summary</div></div>
+              <div class="card-body">
+                <div style="display:flex;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border-light);">
+                  <span>Total Available Device Units:</span><strong id="report-stock-qty">0</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border-light);">
+                  <span>Device Stock Valuation Cost:</span><strong id="report-stock-value">$0</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.75rem 0;">
+                  <span>Spare Parts Valuation Cost:</span><strong id="report-parts-value">$0</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title">💰 Sales & Order Metrics</div></div>
+              <div class="card-body">
+                <div style="display:flex;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border-light);">
+                  <span>Total Completed Sales:</span><strong id="report-sales-count">0</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border-light);">
+                  <span>Total Sales Revenue:</span><strong id="report-sales-revenue">$0</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.75rem 0;">
+                  <span>Average Order Value (AOV):</span><strong id="report-sales-avg">$0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Branch Performance Report -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">🏢 Branch Performance Matrix</div></div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Branch Location</th>
+                      <th>Sales Revenue</th>
+                      <th>Gross Profit</th>
+                      <th>Repairs Handled</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-branch-report-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: SETTINGS ================= -->
+        <section id="view-settings" class="view-section" style="display:none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">System Settings</h1>
+              <p class="page-subtitle">Configure company info, currency, threshold limits, and demo data reset</p>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <div class="card-header"><div class="card-title">General ERP Settings</div></div>
+              <div class="card-body">
+                <form id="form-settings" onsubmit="event.preventDefault(); AppModule.saveSettings();">
+                  <div class="form-group">
+                    <label class="form-label">Company / Business Name</label>
+                    <input type="text" name="companyName" class="form-control">
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">System Currency</label>
+                      <select name="currency" class="form-control">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="BDT">BDT (৳)</option>
+                        <option value="INR">INR (₹)</option>
+                        <option value="AED">AED (د.إ)</option>
+                        <option value="SAR">SAR (﷼)</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Tax Rate (%)</label>
+                      <input type="number" name="taxRate" class="form-control">
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Low Stock Alert Threshold</label>
+                      <input type="number" name="lowStockThreshold" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Slow Moving Threshold (Days)</label>
+                      <input type="number" name="slowMovingDays" class="form-control">
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary mt-2">Save System Settings</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title">Demo Data Control</div></div>
+              <div class="card-body">
+                <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;">
+                  Manage client-side localStorage persistence or re-initialize realistic pre-populated dataset.
+                </p>
+
+                <div style="display:flex;flex-direction:column;gap:1rem;">
+                  <button class="btn btn-warning btn-lg" onclick="AppModule.resetDemoData()">
+                    🔄 Reset Initial Demo Data
+                  </button>
+                  <p style="font-size:0.75rem;color:var(--text-muted);">Restores pre-populated 30+ devices, sales, customers, suppliers & repairs.</p>
+
+                  <button class="btn btn-danger btn-lg mt-3" onclick="AppModule.clearAllData()">
+                    🗑️ Clear All Application Data
+                  </button>
+                  <p style="font-size:0.75rem;color:var(--text-muted);">Wipes all localStorage records cleanly.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================
+       MODAL DIALOGS
+       ============================================ -->
+
+  <!-- Modal: Add/Edit New Gadget -->
+  <div class="modal-overlay" id="modal-new-gadget" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-new-gadget-title">Add New Gadget</div>
+        <button class="modal-close" onclick="closeModal('modal-new-gadget')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-new-gadget">
+          <input type="hidden" id="new-gadget-id-field" name="id">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Brand <span class="req">*</span></label>
+              <select name="brand" class="form-control" required>
+                <option value="Apple">Apple</option>
+                <option value="Samsung">Samsung</option>
+                <option value="Google">Google</option>
+                <option value="OnePlus">OnePlus</option>
+                <option value="Xiaomi">Xiaomi</option>
+                <option value="Oppo">Oppo</option>
+                <option value="Vivo">Vivo</option>
+                <option value="Huawei">Huawei</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Model <span class="req">*</span></label>
+              <input type="text" name="model" class="form-control" placeholder="e.g. iPhone 15 Pro Max" required>
+            </div>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Variant</label>
+              <input type="text" name="variant" class="form-control" placeholder="e.g. 256GB">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Color</label>
+              <input type="text" name="color" class="form-control" placeholder="e.g. Natural Titanium">
+            </div>
+            <div class="form-group">
+              <label class="form-label">SKU <span class="req">*</span></label>
+              <input type="text" name="sku" class="form-control" placeholder="e.g. APL-IP15PM-256" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">IMEI / Serial Number</label>
+              <input type="text" name="imei" class="form-control imei-field" placeholder="15-digit IMEI">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Barcode</label>
+              <input type="text" name="barcode" class="form-control" placeholder="Barcode value">
+            </div>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Purchase Cost ($) <span class="req">*</span></label>
+              <input type="number" step="0.01" name="purchaseCost" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Selling Price ($) <span class="req">*</span></label>
+              <input type="number" step="0.01" name="sellingPrice" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Stock <span class="req">*</span></label>
+              <input type="number" name="currentStock" class="form-control" value="5" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Minimum Stock Alert Limit</label>
+              <input type="number" name="minimumStock" class="form-control" value="2">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Branch Location</label>
+              <select name="branchId" class="form-control branch-dropdown-select"></select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-new-gadget')">Cancel</button>
+        <button class="btn btn-primary" onclick="InventoryModule.saveNewGadget()">Save Gadget Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit Used Gadget -->
+  <div class="modal-overlay" id="modal-used-gadget" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-used-gadget-title">Add Used Device Record</div>
+        <button class="modal-close" onclick="closeModal('modal-used-gadget')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-used-gadget">
+          <input type="hidden" id="used-gadget-id-field" name="id">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Brand <span class="req">*</span></label>
+              <select name="brand" class="form-control" required>
+                <option value="Apple">Apple</option>
+                <option value="Samsung">Samsung</option>
+                <option value="Google">Google</option>
+                <option value="OnePlus">OnePlus</option>
+                <option value="Xiaomi">Xiaomi</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Model <span class="req">*</span></label>
+              <input type="text" name="model" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">IMEI Number (Unique) <span class="req">*</span></label>
+              <input type="text" name="imei" class="form-control imei-field" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Battery Health (%)</label>
+              <input type="number" name="batteryHealth" class="form-control" value="88">
+            </div>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Physical Condition Grade</label>
+              <select name="physicalCondition" class="form-control">
+                <option value="Excellent">Excellent</option>
+                <option value="Very Good">Very Good</option>
+                <option value="Good" selected>Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Purchase Cost ($) <span class="req">*</span></label>
+              <input type="number" step="0.01" name="purchaseCost" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Resale Price ($) <span class="req">*</span></label>
+              <input type="number" step="0.01" name="targetSellingPrice" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Seller / Customer Name</label>
+              <input type="text" name="sellerName" class="form-control" placeholder="Seller Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Branch Location</label>
+              <select name="branchId" class="form-control branch-dropdown-select"></select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-used-gadget')">Cancel</button>
+        <button class="btn btn-primary" onclick="InventoryModule.saveUsedGadget()">Save Used Device</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit Spare Part -->
+  <div class="modal-overlay" id="modal-spare-part" style="display:none;">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-spare-part-title">Add Spare Part</div>
+        <button class="modal-close" onclick="closeModal('modal-spare-part')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-spare-part">
+          <input type="hidden" id="spare-part-id-field" name="id">
+          <div class="form-group">
+            <label class="form-label">Part Name <span class="req">*</span></label>
+            <input type="text" name="partName" class="form-control" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Part Number <span class="req">*</span></label>
+              <input type="text" name="partNumber" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select name="category" class="form-control">
+                <option value="Screens">Screens</option>
+                <option value="Batteries">Batteries</option>
+                <option value="Charging Ports">Charging Ports</option>
+                <option value="Cameras">Cameras</option>
+                <option value="Housing">Housing</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Cost ($) <span class="req">*</span></label>
+              <input type="number" step="0.01" name="purchaseCost" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price ($)</label>
+              <input type="number" step="0.01" name="sellingPrice" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stock Qty <span class="req">*</span></label>
+              <input type="number" name="stock" class="form-control" value="10" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Branch</label>
+            <select name="branchId" class="form-control branch-dropdown-select"></select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-spare-part')">Cancel</button>
+        <button class="btn btn-primary" onclick="InventoryModule.saveSparePart()">Save Spare Part</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create New Sale -->
+  <div class="modal-overlay" id="modal-new-sale" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">Create Individual Device Sale Invoice</div>
+        <button class="modal-close" onclick="closeModal('modal-new-sale')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-sale">
+          <div class="form-group">
+            <label class="form-label">Select Customer <span class="req">*</span></label>
+            <select id="sale-customer-select" class="form-control" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Select Device from Inventory <span class="req">*</span></label>
+            <select id="sale-device-select" class="form-control" onchange="SalesModule.onDeviceSelectChange()" required></select>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Device Cost ($)</label>
+              <input type="number" id="sale-cost-field" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">List Price ($)</label>
+              <input type="number" id="sale-price-field" class="form-control" oninput="SalesModule.calcSaleTotals()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount ($)</label>
+              <input type="number" id="sale-discount-field" class="form-control" value="0" oninput="SalesModule.calcSaleTotals()">
+            </div>
+          </div>
+
+          <div class="valuation-box">
+            <div class="valuation-calc-row"><span>Final Billed Selling Price:</span><span id="sale-final-price" style="font-weight:700;font-size:1.125rem;">$0.00</span></div>
+            <div class="valuation-calc-row"><span>Calculated Profit:</span><span id="sale-profit" class="text-success" style="font-weight:700;">$0.00</span></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Payment Method</label>
+              <select id="sale-payment-method" class="form-control">
+                <option value="Card">Credit / Debit Card</option>
+                <option value="Cash">Cash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Mobile Payment">Mobile Payment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Branch</label>
+              <select id="sale-branch-select" class="form-control branch-dropdown-select"></select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-new-sale')">Cancel</button>
+        <button class="btn btn-primary" onclick="SalesModule.saveSale()">Complete Sale & Generate Receipt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create New Trade-In -->
+  <div class="modal-overlay" id="modal-new-tradein" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">New Trade-In / Exchange Transaction</div>
+        <button class="modal-close" onclick="closeModal('modal-new-tradein')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-tradein">
+          <div class="form-group">
+            <label class="form-label">Customer <span class="req">*</span></label>
+            <select id="tradein-customer-select" class="form-control" required></select>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Traded Brand <span class="req">*</span></label>
+              <input type="text" id="tradein-brand" class="form-control" placeholder="Apple" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Traded Model <span class="req">*</span></label>
+              <input type="text" id="tradein-model" class="form-control" placeholder="iPhone 12" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Traded Device IMEI <span class="req">*</span></label>
+              <input type="text" id="tradein-imei" class="form-control imei-field" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">New Device Being Purchased (Optional)</label>
+            <select id="tradein-newdevice-select" class="form-control"></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Branch Location</label>
+            <select id="tradein-branch-select" class="form-control branch-dropdown-select"></select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-new-tradein')">Cancel</button>
+        <button class="btn btn-primary" onclick="TradeInModule.saveTradeIn()">Complete Trade-In & Add to Used Stock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Trade-In Status -->
+  <div class="modal-overlay" id="modal-edit-tradein" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <div class="modal-title">Update Trade-In Status</div>
+        <button class="modal-close" onclick="closeModal('modal-edit-tradein')">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-tradein-id">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="edit-tradein-status" class="form-control">
+            <option value="Pending Evaluation">Pending Evaluation</option>
+            <option value="Approved">Approved</option>
+            <option value="Received">Received</option>
+            <option value="Refurbishment">Refurbishment</option>
+            <option value="Ready for Sale">Ready for Sale</option>
+            <option value="Sold">Sold</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-edit-tradein')">Cancel</button>
+        <button class="btn btn-primary" onclick="TradeInModule.updateTradeInStatus()">Update Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create New Repair Ticket -->
+  <div class="modal-overlay" id="modal-new-repair" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-repair-title">Create Repair Ticket</div>
+        <button class="modal-close" onclick="closeModal('modal-new-repair')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-repair">
+          <input type="hidden" id="repair-id-field" name="id">
+          <div class="form-group">
+            <label class="form-label">Customer</label>
+            <select id="repair-customer-select" name="customerId" class="form-control"></select>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Device Brand <span class="req">*</span></label>
+              <input type="text" name="deviceBrand" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Device Model <span class="req">*</span></label>
+              <input type="text" name="deviceModel" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">IMEI / Serial</label>
+              <input type="text" name="imei" class="form-control imei-field">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Problem Reported <span class="req">*</span></label>
+            <textarea name="problemDesc" class="form-control" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Technician Diagnosis</label>
+            <textarea name="diagnosis" class="form-control"></textarea>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Parts Cost ($)</label>
+              <input type="number" step="0.01" name="partsCost" class="form-control" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Labor Cost ($)</label>
+              <input type="number" step="0.01" name="laborCost" class="form-control" value="40">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Billed Price to Customer ($)</label>
+              <input type="number" step="0.01" name="customerPrice" class="form-control" value="65">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Assigned Technician</label>
+              <input type="text" name="technician" class="form-control" value="Alex Rivera">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Repair Status</label>
+              <select name="status" class="form-control">
+                <option value="Received">Received</option>
+                <option value="Diagnosing">Diagnosing</option>
+                <option value="Waiting for Parts">Waiting for Parts</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Ready for Pickup">Ready for Pickup</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-new-repair')">Cancel</button>
+        <button class="btn btn-primary" onclick="RepairModule.saveRepair()">Save Repair Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: View Repair Details -->
+  <div class="modal-overlay" id="modal-repair-detail" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">Repair Ticket Details</div>
+        <button class="modal-close" onclick="closeModal('modal-repair-detail')">✕</button>
+      </div>
+      <div class="modal-body" id="repair-detail-content"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-repair-detail')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Start Refurbishment -->
+  <div class="modal-overlay" id="modal-new-refurb" style="display:none;">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title">Start Refurbishment Project</div>
+        <button class="modal-close" onclick="closeModal('modal-new-refurb')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-refurb">
+          <div class="form-group">
+            <label class="form-label">Select Used Device <span class="req">*</span></label>
+            <select id="refurb-device-select" class="form-control" required></select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Technician</label>
+              <input type="text" id="refurb-tech-field" class="form-control" value="Alex Rivera">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Grade After Refurb</label>
+              <select id="refurb-cond-after" class="form-control">
+                <option value="Excellent">Excellent</option>
+                <option value="Very Good" selected>Very Good</option>
+                <option value="Good">Good</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Spare Parts Cost ($)</label>
+              <input type="number" id="refurb-parts-cost" class="form-control" value="25">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Labor Cost ($)</label>
+              <input type="number" id="refurb-labor-cost" class="form-control" value="20">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Branch</label>
+            <select id="refurb-branch-select" class="form-control branch-dropdown-select"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Refurbishment Notes</label>
+            <textarea id="refurb-notes" class="form-control" placeholder="Replaced screen protector, deep battery test"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-new-refurb')">Cancel</button>
+        <button class="btn btn-primary" onclick="RefurbishmentModule.saveRefurbishment()">Start Refurbishment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Refurbishment Status -->
+  <div class="modal-overlay" id="modal-edit-refurb" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <div class="modal-title">Update Refurbishment Status</div>
+        <button class="modal-close" onclick="closeModal('modal-edit-refurb')">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-refurb-id">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="edit-refurb-status" class="form-control">
+            <option value="In Progress">In Progress</option>
+            <option value="Quality Check">Quality Check</option>
+            <option value="Completed">Completed</option>
+            <option value="Ready for Sale">Ready for Sale</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Final Grade After Refurb</label>
+          <select id="edit-refurb-cond-after" class="form-control">
+            <option value="Excellent">Excellent</option>
+            <option value="Very Good">Very Good</option>
+            <option value="Good">Good</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-edit-refurb')">Cancel</button>
+        <button class="btn btn-primary" onclick="RefurbishmentModule.updateRefurbStatus()">Update Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Supplier -->
+  <div class="modal-overlay" id="modal-supplier" style="display:none;">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-supplier-title">Add Supplier</div>
+        <button class="modal-close" onclick="closeModal('modal-supplier')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-supplier">
+          <input type="hidden" id="supplier-id-field" name="id">
+          <div class="form-group">
+            <label class="form-label">Company Name <span class="req">*</span></label>
+            <input type="text" name="companyName" class="form-control" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Contact Person</label>
+              <input type="text" name="contactPerson" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone <span class="req">*</span></label>
+              <input type="text" name="phone" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Payment Terms</label>
+              <select name="paymentTerms" class="form-control">
+                <option value="Immediate">Immediate</option>
+                <option value="Net 15">Net 15</option>
+                <option value="Net 30" selected>Net 30</option>
+                <option value="Net 60">Net 60</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-supplier')">Cancel</button>
+        <button class="btn btn-primary" onclick="PurchasingModule.saveSupplier()">Save Supplier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: New Purchase Order -->
+  <div class="modal-overlay" id="modal-new-po" style="display:none;">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title">Create Purchase Order</div>
+        <button class="modal-close" onclick="closeModal('modal-new-po')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-po">
+          <div class="form-group">
+            <label class="form-label">Supplier <span class="req">*</span></label>
+            <select id="po-supplier-select" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Order Item Description <span class="req">*</span></label>
+            <input type="text" id="po-item-desc" class="form-control" placeholder="e.g. iPhone 15 Pro Max 256GB Batch" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Quantity <span class="req">*</span></label>
+              <input type="number" id="po-item-qty" class="form-control" value="5" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Unit Wholesale Cost ($) <span class="req">*</span></label>
+              <input type="number" id="po-item-cost" class="form-control" value="950" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destination Branch</label>
+            <select id="po-branch-select" class="form-control branch-dropdown-select"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea id="po-notes" class="form-control"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-new-po')">Cancel</button>
+        <button class="btn btn-primary" onclick="PurchasingModule.savePO()">Create Purchase Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Branch -->
+  <div class="modal-overlay" id="modal-branch" style="display:none;">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-branch-title">Add New Branch</div>
+        <button class="modal-close" onclick="closeModal('modal-branch')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-branch">
+          <input type="hidden" id="branch-id-field" name="id">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Branch Name <span class="req">*</span></label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Branch Code <span class="req">*</span></label>
+              <input type="text" name="code" class="form-control" placeholder="e.g. DT-01" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" name="address" class="form-control">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="text" name="phone" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Manager Name</label>
+              <input type="text" name="manager" class="form-control">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-branch')">Cancel</button>
+        <button class="btn btn-primary" onclick="BranchesModule.saveBranch()">Save Branch</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: New Branch Transfer -->
+  <div class="modal-overlay" id="modal-new-transfer" style="display:none;">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title">Initiate Branch Stock Transfer</div>
+        <button class="modal-close" onclick="closeModal('modal-new-transfer')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-new-transfer">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">From Source Branch <span class="req">*</span></label>
+              <select id="trf-from-branch" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Destination Branch <span class="req">*</span></label>
+              <select id="trf-to-branch" class="form-control" required></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Device to Transfer <span class="req">*</span></label>
+            <select id="trf-device-select" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Transfer Reason / Notes</label>
+            <textarea id="trf-notes" class="form-control" placeholder="Rebalancing stock levels"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-new-transfer')">Cancel</button>
+        <button class="btn btn-primary" onclick="BranchesModule.saveTransfer()">Ship Transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Customer -->
+  <div class="modal-overlay" id="modal-customer" style="display:none;">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-customer-title">Add New Customer</div>
+        <button class="modal-close" onclick="closeModal('modal-customer')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-add-customer">
+          <input type="hidden" id="customer-id-field" name="id">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Phone <span class="req">*</span></label>
+              <input type="text" name="phone" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Customer Type</label>
+              <select name="customerType" class="form-control">
+                <option value="Individual">Individual</option>
+                <option value="Business">Business</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Membership Tier</label>
+              <select name="membershipLevel" class="form-control">
+                <option value="Regular">Regular</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Platinum">Platinum</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('modal-customer')">Cancel</button>
+        <button class="btn btn-primary" onclick="SalesModule.saveCustomer()">Save Customer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- JavaScript Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/sales.js"></script>
+  <script src="js/tradein.js"></script>
+  <script src="js/repair.js"></script>
+  <script src="js/refurbishment.js"></script>
+  <script src="js/purchasing.js"></script>
+  <script src="js/branches.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/app.js"></script>
+
 </body>
 </html>
